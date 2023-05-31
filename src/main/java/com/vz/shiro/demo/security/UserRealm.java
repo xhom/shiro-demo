@@ -55,8 +55,7 @@ public class UserRealm extends AuthorizingRealm {
             return null;
         }
         User principal = user.selfClone();
-        //移除敏感信息
-        principal.setPassword(null);
+        principal.setPassword(null); //移除敏感信息
         return new SimpleAuthenticationInfo(principal, user.getPassword(), getName());
         //也可只在认证信息中保存用户名
         //将用户信息手动放到Session，并在已登陆时从Session中获取，注意在退出登录时清除掉用户信息
