@@ -1,6 +1,5 @@
 package com.vz.shiro.demo.security;
 
-import com.alibaba.fastjson.JSON;
 import com.vz.shiro.demo.entity.User;
 import com.vz.shiro.demo.utils.PwdUtil;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -25,17 +24,16 @@ public class UserCredentialsMatcher extends SimpleCredentialsMatcher {
         try {
             //获取用户输入的用户名和密码
             UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-            //得到密码凭证
-            char[] pwd = userToken.getPassword();
-            //转换为string类型
-            String password = new String(pwd);
+            //得到密码凭证并转换为String类型
+            String password = new String(userToken.getPassword());
+            //获取数据库用户信息
             User user = (User) info.getPrincipals().getPrimaryPrincipal();
             //将用户输入的密码转为密文(Tips：数据库保存密码时需采用同样的加密规则)
-            String enPassword = PwdUtil.encrypt(password, user.getSalt());
+            password = PwdUtil.encrypt(password, user.getSalt());
             //获取数据库中的密文密码
             Object credentials = info.getCredentials();
             //密码验证
-            return equals(enPassword, credentials);
+            return equals(password, credentials);
         }catch (Exception e){
             e.printStackTrace();
             return false;
