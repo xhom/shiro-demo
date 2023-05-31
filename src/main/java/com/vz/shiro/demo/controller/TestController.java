@@ -1,9 +1,9 @@
 package com.vz.shiro.demo.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.vz.shiro.demo.common.ErrCodeEnum;
 import com.vz.shiro.demo.common.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @description: 测试接口
  * @date 2023/5/30 20:10
  */
+@Slf4j
 @RestController
 @RequestMapping("/test")
 public class TestController {
@@ -30,9 +31,9 @@ public class TestController {
     @GetMapping("/auth")
     public Result<String> auth(){
         Subject subject = SecurityUtils.getSubject();
-        System.out.println("是否已登录："+ subject.isAuthenticated());
+        log.info("是否已登录：{}", subject.isAuthenticated());
         Object principal = subject.getPrincipal();
-        System.out.println("principal: "+ JSON.toJSONString(principal, SerializerFeature.WriteMapNullValue));
+        log.info("principal: {}", JSON.toJSONString(principal));
         return Result.success("已成功登录");
     }
 

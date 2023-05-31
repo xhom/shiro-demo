@@ -6,6 +6,7 @@ import com.vz.shiro.demo.dao.RoleMapper;
 import com.vz.shiro.demo.dao.UserMapper;
 import com.vz.shiro.demo.entity.Role;
 import com.vz.shiro.demo.entity.User;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -19,12 +20,13 @@ import java.util.*;
  * @description: 负责认证用户身份和对用户进行授权
  * @date 2023/5/30 14:52
  */
+@Slf4j
 public class UserRealm extends AuthorizingRealm {
     //用户授权
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         User user = (User) principals.getPrimaryPrincipal();
-        System.out.println("AuthorizationInfo-User:" + JSON.toJSONString(user));
+        log.info("AuthorizationInfo-User: {}", JSON.toJSONString(user));
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         List<Role> roleList = RoleMapper.findRoleByUserId(user.getId());
 
@@ -41,7 +43,7 @@ public class UserRealm extends AuthorizingRealm {
         List<String> permissionList = PermissionMapper.findByRoleId(roleIds);
         authorizationInfo.setStringPermissions(new HashSet<>(permissionList));
 
-        System.out.println("AuthorizationInfo:" + JSON.toJSONString(authorizationInfo));
+        log.info("AuthorizationInfo: {}", JSON.toJSONString(authorizationInfo));
         return authorizationInfo;
     }
 
@@ -49,7 +51,7 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-        System.out.println("doGetAuthenticationInfo: "+ JSON.toJSONString(userToken));
+        log.info("doGetAuthenticationInfo: {}", JSON.toJSONString(userToken));
         User user = UserMapper.findByAccount(userToken.getUsername());
         if (Objects.isNull(user)) {
             return null;
