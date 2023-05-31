@@ -50,11 +50,11 @@ public class ShiroConfig {
     public WebSecurityManager securityManager(Realm userRealm,
                                               SessionManager sessionManager,
                                               EhCacheManager ehCacheManager) {
-        //使用默认的安全管理器，并设置自定义的领域对象
+        //使用默认的安全管理器
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
-        securityManager.setRealm(userRealm);
-        securityManager.setCacheManager(ehCacheManager);
-        securityManager.setSessionManager(sessionManager);
+        securityManager.setRealm(userRealm); //设置领域对象(认证及授权)
+        securityManager.setCacheManager(ehCacheManager);//设置缓存管理器（缓存授权信息）
+        securityManager.setSessionManager(sessionManager);//设置Session管理器（自定义SessionId的获取方式）
         return securityManager;
     }
 
