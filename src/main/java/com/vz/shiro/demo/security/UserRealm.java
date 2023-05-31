@@ -59,5 +59,9 @@ public class UserRealm extends AuthorizingRealm {
         //移除敏感信息
         //user.setPassword(null);
         return new SimpleAuthenticationInfo(user, password, getName());
+        //也可只在认证信息中保存用户名
+        //将用户信息手动放到Session，并在已登陆时从Session中获取，注意在退出登录时清除掉用户信息
+        //SecurityUtils.getSubject().getSession().setAttribute("LoginUser", user);
+        //return new SimpleAuthenticationInfo(user.getUsername(), password, getName());
     }
 }
