@@ -49,7 +49,7 @@ public class UserRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken token) throws AuthenticationException {
         UsernamePasswordToken userToken = (UsernamePasswordToken) token;
-        System.out.println("doGetAuthenticationInfo: "+userToken.getUsername());
+        System.out.println("doGetAuthenticationInfo: "+ JSON.toJSONString(userToken));
         User user = UserMapper.findByAccount(userToken.getUsername());
         if (Objects.isNull(user)) {
             return null;
