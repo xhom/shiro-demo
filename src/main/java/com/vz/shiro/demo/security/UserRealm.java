@@ -55,8 +55,9 @@ public class UserRealm extends AuthorizingRealm {
         if (Objects.isNull(user)) {
             return null;
         }
-        //设置Session有效期： 2h
-        SecurityUtils.getSubject().getSession().setTimeout(2 * 60 * 60 * 1000);
-        return new SimpleAuthenticationInfo(user, user.getPassword(), getName());
+        String password = user.getPassword();
+        //移除敏感信息
+        //user.setPassword(null);
+        return new SimpleAuthenticationInfo(user, password, getName());
     }
 }

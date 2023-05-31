@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         dynamicConfig="false"
+         updateCheck="false">
+
+    <!--diskStore
+    如果内存满了，会存储在这个地址
+    <diskStore path="/temp/ehcache"/>
+    -->
+
+    <!--defaultCache
+    name：随便起
+    maxElementsInMemory：最大的条数
+    eternal：是否永久存储
+    timeToIdleSeconds：允许空闲多久的数据被删除
+    timeToLiveSeconds：存活时间
+    overflowToDisk：false-缓存数据太多了，不向磁盘存储，而是清除老的数据
+    -->
+
+    <defaultCache
+            name="defaultCache"
+            eternal="false"
+            maxElementsInMemory="10000"
+            timeToIdleSeconds="300"
+            timeToLiveSeconds="300"
+            overflowToDisk="false"
+            maxElementsOnDisk="100000"
+            diskPersistent="false"
+            memoryStoreEvictionPolicy="LRU"/>
+
+    <!--memoryStoreEvictionPolicy
+    缓存的淘汰策略，常用的缓存算法主要有三种：
+    LRU：（Least Recently Used）新来的对象替换掉使用时间算最近很少使用的对象。
+    LFU：（Least Frequently Used）替换掉按命中率高低算比较低的对象。
+    FIFO：（First In First Out）把最早进入二级缓存的对象替换掉。
+    -->
+</ehcache>

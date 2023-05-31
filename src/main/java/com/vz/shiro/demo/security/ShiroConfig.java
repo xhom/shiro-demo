@@ -1,12 +1,14 @@
 package com.vz.shiro.demo.security;
 
 import org.apache.shiro.authc.credential.CredentialsMatcher;
+import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.mgt.WebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,10 +47,13 @@ public class ShiroConfig {
      * 配置Shiro的安全管理器
      */
     @Bean
-    public WebSecurityManager securityManager(Realm userRealm, SessionManager sessionManager) {
+    public WebSecurityManager securityManager(Realm userRealm,
+                                              SessionManager sessionManager,
+                                              EhCacheManager ehCacheManager) {
         //使用默认的安全管理器，并设置自定义的领域对象
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(userRealm);
+        securityManager.setCacheManager(ehCacheManager);
         securityManager.setSessionManager(sessionManager);
         return securityManager;
     }
@@ -59,7 +64,21 @@ public class ShiroConfig {
      */
     @Bean
     public SessionManager sessionManager(){
-        return new MySessionManager();
+        DefaultWebSessionManager sessionManager = new MySessionManager();
+        //设置Session有效期：2h
+        sessionManager.setGlobalSessionTimeout(2*60*60*1000);
+        return sessionManager;
+    }
+
+    /**
+     * 配置缓存管理
+     * 用于缓存授权信息
+     */
+    @Bean
+    public EhCacheManager ehCacheManager() {
+        EhCacheManager ehCacheManager = new EhCacheManager();
+        ehCacheManager.setCacheManagerConfigFile("classpath:ehcache.xml");
+        return ehCacheManager;
     }
 
     /**
