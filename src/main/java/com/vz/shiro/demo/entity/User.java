@@ -35,6 +35,10 @@ public class User {
         DATA.forEach(item -> System.out.println(JSON.toJSONString(item)));
         System.out.println("===============================================================");
     }
+
+    public User selfClone() {
+        return JSON.parseObject(JSON.toJSONString(this), getClass());
+    }
 }
 /*
 SET NAMES utf8mb4;

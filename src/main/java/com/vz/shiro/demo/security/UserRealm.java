@@ -6,7 +6,6 @@ import com.vz.shiro.demo.dao.RoleMapper;
 import com.vz.shiro.demo.dao.UserMapper;
 import com.vz.shiro.demo.entity.Role;
 import com.vz.shiro.demo.entity.User;
-import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
@@ -55,13 +54,13 @@ public class UserRealm extends AuthorizingRealm {
         if (Objects.isNull(user)) {
             return null;
         }
-        String password = user.getPassword();
+        User principal = user.selfClone();
         //移除敏感信息
-        //user.setPassword(null);
-        return new SimpleAuthenticationInfo(user, password, getName());
+        principal.setPassword(null);
+        return new SimpleAuthenticationInfo(principal, user.getPassword(), getName());
         //也可只在认证信息中保存用户名
         //将用户信息手动放到Session，并在已登陆时从Session中获取，注意在退出登录时清除掉用户信息
-        //SecurityUtils.getSubject().getSession().setAttribute("LoginUser", user);
-        //return new SimpleAuthenticationInfo(user.getUsername(), password, getName());
+        //SecurityUtils.getSubject().getSession().setAttribute("LoginUser", principal);
+        //return new SimpleAuthenticationInfo(user.getUsername(), user.getPassword(), getName());
     }
 }
