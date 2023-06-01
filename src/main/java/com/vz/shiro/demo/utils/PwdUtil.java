@@ -35,8 +35,8 @@ public class PwdUtil {
      * @param rawPassword 原密码（明文）
      * @return 密文
      */
-    public static String encrypt(String rawPassword){
-        return encrypt(rawPassword, 10);
+    public static String encode(String rawPassword){
+        return encode(rawPassword, 10);
     }
     /**
      * 密码加密（自动加盐）
@@ -44,16 +44,16 @@ public class PwdUtil {
      * @param strength 密码强度
      * @return 密文
      */
-    public static String encrypt(String rawPassword,  int strength){
+    public static String encode(String rawPassword,  int strength){
         String realSalt = getSalt();
         int saltLen = realSalt.length();
         String saltLenStr = (saltLen>9?"":"0") + saltLen;
         String strengthStr = (strength>9?"":"0") + strength;
         String salt = SALT_PREFIX + strengthStr + saltLenStr + realSalt;
-        return encode(rawPassword, salt);
+        return hashpwd(rawPassword, salt);
     }
 
-    private static String encode(String rawPassword,  String salt){
+    private static String hashpwd(String rawPassword,  String salt){
         String strengthStr = salt.substring(SALT_PREFIX.length(), SALT_PREFIX.length()+2);
         String saltLenStr = salt.substring(SALT_PREFIX.length()+2, SALT_PREFIX.length()+4);
         int strength = Integer.parseInt(strengthStr), saltLen = Integer.parseInt(saltLenStr);
@@ -71,6 +71,6 @@ public class PwdUtil {
      * @return 是否匹配
      */
     public static boolean  matches(String rawPassword, String encodedPassword){
-        return encodedPassword.equals(encode(rawPassword, encodedPassword));
+        return encodedPassword.equals(hashpwd(rawPassword, encodedPassword));
     }
 }
