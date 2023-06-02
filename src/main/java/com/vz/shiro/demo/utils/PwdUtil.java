@@ -10,14 +10,18 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
  * @date 2023/5/30 18:16
  */
 public class PwdUtil {
-    private static final String SALT_PREFIX = "$";
+    private static final int SALT_LEN = 16;
+    private static final int SALT_PREFIX_LEN = 4;
     private static final SecureRandomNumberGenerator secureRandomNumberGenerator = new SecureRandomNumberGenerator();
     /**
      * 随机获取一个盐值
      * @return 盐值
      */
     public static String getSalt(){
-        return secureRandomNumberGenerator.nextBytes().toHex();
+        return getSalt(SALT_LEN / 2);
+    }
+    public static String getSalt(int numBytes){
+        return secureRandomNumberGenerator.nextBytes(numBytes).toHex();
     }
 
     /**
@@ -45,23 +49,17 @@ public class PwdUtil {
      * @return 密文
      */
     public static String encode(String rawPassword,  int strength){
-        String realSalt = getSalt();
-        int saltLen = realSalt.length();
-        String saltLenStr = (saltLen>9?"":"0") + saltLen;
+        String realSalt = getSalt(), saltPrefix = getSalt(SALT_PREFIX_LEN / 2);
         String strengthStr = (strength>9?"":"0") + strength;
-        String salt = SALT_PREFIX + strengthStr + saltLenStr + realSalt;
+        String salt = saltPrefix + strengthStr + realSalt;
         return hashpwd(rawPassword, salt);
     }
 
     private static String hashpwd(String rawPassword,  String salt){
-        String strengthStr = salt.substring(SALT_PREFIX.length(), SALT_PREFIX.length()+2);
-        String saltLenStr = salt.substring(SALT_PREFIX.length()+2, SALT_PREFIX.length()+4);
-        int strength = Integer.parseInt(strengthStr), saltLen = Integer.parseInt(saltLenStr);
-        String realSalt = salt.substring(SALT_PREFIX.length()+4, saltLen);
-        System.out.println("salt: " + salt);
-        System.out.println("strength: " + strength);
-        System.out.println("realSalt: " + realSalt);
-        return salt + new Sha256Hash(new Md5Hash(rawPassword), realSalt, strength).toHex();
+        salt = salt.substring(0, SALT_PREFIX_LEN+2+SALT_LEN);
+        int strength = Integer.parseInt(salt.substring(SALT_PREFIX_LEN, SALT_PREFIX_LEN+2));
+        String realSalt = salt.substring(SALT_PREFIX_LEN+2);
+        return salt + new Md5Hash(rawPassword, realSalt, strength).toHex();
     }
 
     /**
