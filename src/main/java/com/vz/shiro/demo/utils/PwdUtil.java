@@ -3,6 +3,10 @@ package com.vz.shiro.demo.utils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.crypto.hash.Sha256Hash;
+import org.springframework.util.StringUtils;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 
 /**
  * @author visy.wang
@@ -10,8 +14,7 @@ import org.apache.shiro.crypto.hash.Sha256Hash;
  * @date 2023/5/30 18:16
  */
 public class PwdUtil {
-    private static final int SALT_LEN = 16;
-    private static final int SALT_PREFIX_LEN = 4;
+    private static final int SALT_LEN = 16, SALT_PREFIX_LEN = 6;
     private static final SecureRandomNumberGenerator secureRandomNumberGenerator = new SecureRandomNumberGenerator();
     /**
      * 随机获取一个盐值
@@ -55,7 +58,10 @@ public class PwdUtil {
         return hashpwd(rawPassword, salt);
     }
 
-    private static String hashpwd(String rawPassword,  String salt){
+    private static String hashpwd(String rawPassword, String salt){
+        if(salt.length() < SALT_PREFIX_LEN+2+SALT_LEN){
+            return "-";
+        }
         salt = salt.substring(0, SALT_PREFIX_LEN+2+SALT_LEN);
         int strength = Integer.parseInt(salt.substring(SALT_PREFIX_LEN, SALT_PREFIX_LEN+2));
         String realSalt = salt.substring(SALT_PREFIX_LEN+2);
@@ -63,12 +69,19 @@ public class PwdUtil {
     }
 
     /**
-     * 密码对比，结合encrypt(String rawPassword,  int strength)使用
+     * 密码对比，配合encode使用
      * @param rawPassword 明文
      * @param encodedPassword 密文
      * @return 是否匹配
      */
-    public static boolean  matches(String rawPassword, String encodedPassword){
-        return encodedPassword.equals(hashpwd(rawPassword, encodedPassword));
+    public static boolean matches(String rawPassword, String encodedPassword){
+        if(StringUtils.hasText(rawPassword) && StringUtils.hasText(encodedPassword)){
+            String hashed = hashpwd(rawPassword, encodedPassword);
+            byte[] hashedBytes = hashed.getBytes(StandardCharsets.UTF_8);
+            byte[] encodedPassBytes = encodedPassword.getBytes(StandardCharsets.UTF_8);
+            //可防止计时攻击的字符串比对
+            return MessageDigest.isEqual(hashedBytes, encodedPassBytes);
+        }
+        return false;
     }
 }
