@@ -14,8 +14,9 @@ import java.security.MessageDigest;
  * @date 2023/5/30 18:16
  */
 public class PwdUtil {
-    private static final int SALT_LEN = 16, SALT_PREFIX_LEN = 6;
-    private static final SecureRandomNumberGenerator secureRandomNumberGenerator = new SecureRandomNumberGenerator();
+    private static final int STRENGTH = 10;
+    private static final int SALT_LEN = 16, SALT_PREFIX_LEN = 6; //须是2的倍数
+    private static final SecureRandomNumberGenerator randomNumberGenerator = new SecureRandomNumberGenerator();
     /**
      * 随机获取一个盐值
      * @return 盐值
@@ -24,7 +25,7 @@ public class PwdUtil {
         return getSalt(SALT_LEN / 2);
     }
     public static String getSalt(int numBytes){
-        return secureRandomNumberGenerator.nextBytes(numBytes).toHex();
+        return randomNumberGenerator.nextBytes(numBytes).toHex();
     }
 
     /**
@@ -53,19 +54,17 @@ public class PwdUtil {
      */
     public static String encode(String rawPassword,  int strength){
         String realSalt = getSalt(), saltPrefix = getSalt(SALT_PREFIX_LEN / 2);
-        String strengthStr = (strength>9?"":"0") + strength;
-        String salt = saltPrefix + strengthStr + realSalt;
-        return hashpwd(rawPassword, salt);
+        return hashpwd(rawPassword, saltPrefix + realSalt);
     }
 
     private static String hashpwd(String rawPassword, String salt){
-        if(salt.length() < SALT_PREFIX_LEN+2+SALT_LEN){
+        int fullSaltLen = SALT_PREFIX_LEN + SALT_LEN;
+        if(salt.length() < fullSaltLen){
             return "-";
         }
-        salt = salt.substring(0, SALT_PREFIX_LEN+2+SALT_LEN);
-        int strength = Integer.parseInt(salt.substring(SALT_PREFIX_LEN, SALT_PREFIX_LEN+2));
-        String realSalt = salt.substring(SALT_PREFIX_LEN+2);
-        return salt + new Md5Hash(rawPassword, realSalt, strength).toHex();
+        salt = salt.substring(0, fullSaltLen);
+        String realSalt = salt.substring(SALT_PREFIX_LEN);
+        return salt + new Md5Hash(rawPassword, realSalt, STRENGTH).toHex();
     }
 
     /**
